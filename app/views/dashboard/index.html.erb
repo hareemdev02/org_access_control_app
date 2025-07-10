@@ -1,0 +1,172 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4>Welcome, <%= current_user.full_name %>!</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h5>Your Information</h5>
+            <ul class="list-unstyled">
+              <li><strong>Email:</strong> <%= current_user.email %></li>
+              <li><strong>Age:</strong> <%= current_user.age %> years old</li>
+              <li><strong>Age Group:</strong> <%= current_user.age_group.titleize %></li>
+              <li><strong>Status:</strong> 
+                <% if current_user.minor? %>
+                  <span class="badge badge-warning">Minor</span>
+                <% else %>
+                  <span class="badge badge-success">Adult</span>
+                <% end %>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="col-md-6">
+            <h5>Organization Status</h5>
+            <% if current_user.organization %>
+              <ul class="list-unstyled">
+                <li><strong>Organization:</strong> <%= current_user.organization.name %></li>
+                <li><strong>Membership:</strong> 
+                  <% if current_user.organization_admin? %>
+                    <span class="badge badge-primary">Admin</span>
+                  <% else %>
+                    <span class="badge badge-info">Member</span>
+                  <% end %>
+                </li>
+                <li><strong>Participation:</strong> 
+                  <% if current_user.organization.can_user_participate?(current_user) %>
+                    <span class="badge badge-success">Allowed</span>
+                  <% else %>
+                    <span class="badge badge-danger">Restricted</span>
+                  <% end %>
+                </li>
+              </ul>
+            <% else %>
+              <p class="text-muted">You are not a member of any organization.</p>
+              <%= link_to 'Join or Create Organization', organizations_path, class: 'btn btn-primary btn-sm' %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <% if current_user.organization %>
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5>Organization Overview</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="text-center">
+                <h3><%= @members_count %></h3>
+                <p class="text-muted">Total Members</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h3><%= @admin_count %></h3>
+                <p class="text-muted">Admins</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h3><%= current_user.organization.users.minors.count %></h3>
+                <p class="text-muted">Minors</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h3><%= current_user.organization.users.adults.count %></h3>
+                <p class="text-muted">Adults</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  
+  <div class="col-md-4">
+    <!-- Parental Consent Status -->
+    <% if current_user.minor? %>
+      <div class="card">
+        <div class="card-header">
+          <h5>Parental Consent Status</h5>
+        </div>
+        <div class="card-body">
+          <% if @parental_consent %>
+            <% if @parental_consent.approved? %>
+              <div class="alert alert-success">
+                <strong>Approved!</strong> Your parental consent is active until <%= @parental_consent.expiry_date.strftime('%B %d, %Y') %>
+              </div>
+            <% elsif @parental_consent.pending? %>
+              <div class="alert alert-warning">
+                <strong>Pending</strong> Waiting for parent approval
+              </div>
+            <% elsif @parental_consent.expired? %>
+              <div class="alert alert-danger">
+                <strong>Expired</strong> Consent expired on <%= @parental_consent.expiry_date.strftime('%B %d, %Y') %>
+              </div>
+              <%= link_to 'Renew Consent', renew_parental_consent_path(@parental_consent), method: :patch, class: 'btn btn-warning btn-sm' %>
+            <% end %>
+          <% else %>
+            <div class="alert alert-info">
+              <strong>Required</strong> Parental consent is required for your age group
+            </div>
+            <%= link_to 'Request Consent', new_parental_consent_path, class: 'btn btn-primary btn-sm' %>
+          <% end %>
+        </div>
+      </div>
+    <% elsif current_user.adult? && @pending_consents.any? %>
+      <div class="card">
+        <div class="card-header">
+          <h5>Pending Consent Requests</h5>
+        </div>
+        <div class="card-body">
+          <% @pending_consents.each do |consent| %>
+            <div class="mb-2">
+              <strong><%= consent.child.full_name %></strong> is requesting parental consent
+              <%= link_to 'Review', parental_consent_path(consent), class: 'btn btn-sm btn-outline-primary' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+    
+    <!-- Participation Rules -->
+    <% if current_user.organization && @participation_rules.any? %>
+      <div class="card mt-3">
+        <div class="card-header">
+          <h5>Your Participation Rules</h5>
+        </div>
+        <div class="card-body">
+          <% rule = current_user.organization.participation_rules_for_age_group(current_user.age_group) %>
+          <% if rule %>
+            <ul class="list-unstyled">
+              <li><strong>Age Range:</strong> <%= rule.age_range %></li>
+              <li><strong>Content Filtering:</strong> <%= rule.content_filtering_level.titleize %></li>
+              <li><strong>Parental Consent:</strong> 
+                <% if rule.requires_parental_consent? %>
+                  <span class="badge badge-warning">Required</span>
+                <% else %>
+                  <span class="badge badge-success">Not Required</span>
+                <% end %>
+              </li>
+            </ul>
+            
+            <% if rule.participation_restrictions.any? %>
+              <strong>Restrictions:</strong>
+              <ul>
+                <% rule.participation_restrictions.each do |restriction| %>
+                  <li><%= restriction.titleize %></li>
+                <% end %>
+              </ul>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div> 

@@ -1,0 +1,122 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4><%= @participation_rule.age_group.titleize %> Participation Rule</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Basic Information</h6>
+            <p><strong>Age Group:</strong> <%= @participation_rule.age_group.titleize %></p>
+            <p><strong>Age Range:</strong> <%= @participation_rule.min_age %> - <%= @participation_rule.max_age %> years</p>
+            <p><strong>Participation Status:</strong> 
+              <span class="badge badge-<%= @participation_rule.participation_allowed? ? 'success' : 'danger' %>">
+                <%= @participation_rule.participation_allowed? ? 'Allowed' : 'Restricted' %>
+              </span>
+            </p>
+            <p><strong>Parental Consent:</strong> 
+              <span class="badge badge-<%= @participation_rule.parental_consent_required? ? 'warning' : 'secondary' %>">
+                <%= @participation_rule.parental_consent_required? ? 'Required' : 'Not Required' %>
+              </span>
+            </p>
+          </div>
+          
+          <div class="col-md-6">
+            <h6>Additional Settings</h6>
+            <p><strong>Content Filtering:</strong> <%= @participation_rule.content_filtering_level.titleize %></p>
+            <p><strong>Supervision Required:</strong> 
+              <span class="badge badge-<%= @participation_rule.supervision_required? ? 'warning' : 'success' %>">
+                <%= @participation_rule.supervision_required? ? 'Yes' : 'No' %>
+              </span>
+            </p>
+            <p><strong>Time Restrictions:</strong> 
+              <% if @participation_rule.time_restrictions.present? %>
+                <%= @participation_rule.time_restrictions %>
+              <% else %>
+                <span class="text-muted">None</span>
+              <% end %>
+            </p>
+          </div>
+        </div>
+        
+        <% if @participation_rule.restrictions.present? %>
+          <hr>
+          <div class="row">
+            <div class="col-12">
+              <h6>Restrictions</h6>
+              <p><%= @participation_rule.restrictions %></p>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if @participation_rule.description.present? %>
+          <hr>
+          <div class="row">
+            <div class="col-12">
+              <h6>Description</h6>
+              <p><%= @participation_rule.description %></p>
+            </div>
+          </div>
+        <% end %>
+        
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <h6>Actions</h6>
+            <div class="btn-group" role="group">
+              <% if current_user.organization_admin? %>
+                <%= link_to 'Edit Rule', edit_organization_participation_rule_path(@organization, @participation_rule), class: 'btn btn-primary' %>
+                <%= link_to 'Delete Rule', organization_participation_rule_path(@organization, @participation_rule), 
+                    method: :delete, 
+                    class: 'btn btn-danger',
+                    data: { confirm: 'Are you sure? This action cannot be undone.' } %>
+              <% end %>
+              <%= link_to 'Back to Rules', organization_participation_rules_path(@organization), class: 'btn btn-secondary' %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h6>Rule Impact</h6>
+      </div>
+      <div class="card-body">
+        <div class="text-center mb-3">
+          <div class="metric-value text-primary"><%= @organization.users.by_age_group(@participation_rule.min_age, @participation_rule.max_age).count %></div>
+          <div class="metric-label">Users Affected</div>
+        </div>
+        
+        <div class="text-center mb-3">
+          <div class="metric-value text-<%= @participation_rule.participation_allowed? ? 'success' : 'danger' %>">
+            <%= @participation_rule.participation_allowed? ? '100%' : '0%' %>
+          </div>
+          <div class="metric-label">Participation Rate</div>
+        </div>
+        
+        <% if @participation_rule.parental_consent_required? %>
+          <div class="text-center">
+            <div class="metric-value text-warning">
+              <%= @organization.users.by_age_group(@participation_rule.min_age, @participation_rule.max_age).joins(:parental_consent).where(parental_consents: { approved: true }).count %>
+            </div>
+            <div class="metric-label">With Approved Consent</div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="card mt-3">
+      <div class="card-header">
+        <h6>Rule History</h6>
+      </div>
+      <div class="card-body">
+        <p><strong>Created:</strong> <%= @participation_rule.created_at.strftime("%B %d, %Y") %></p>
+        <p><strong>Last Updated:</strong> <%= @participation_rule.updated_at.strftime("%B %d, %Y") %></p>
+      </div>
+    </div>
+  </div>
+</div> 

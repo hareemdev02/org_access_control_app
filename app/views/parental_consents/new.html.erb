@@ -1,0 +1,72 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4>Create Parental Consent Request</h4>
+      </div>
+      <div class="card-body">
+        <%= form_with(model: @parental_consent, local: true) do |form| %>
+          <% if @parental_consent.errors.any? %>
+            <div class="alert alert-danger">
+              <h6><%= pluralize(@parental_consent.errors.count, "error") %> prohibited this consent from being saved:</h6>
+              <ul>
+                <% @parental_consent.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <% if current_user.has_role?(:admin) %>
+            <div class="form-group">
+              <%= form.label :parent_id, 'Parent/Guardian', class: 'form-label' %>
+              <%= form.select :parent_id, 
+                  options_from_collection_for_select(User.adults, :id, :full_name_with_age, @parental_consent.parent_id),
+                  { prompt: 'Select a parent/guardian' },
+                  class: 'form-control' %>
+              <small class="form-text text-muted">Select the parent or guardian who will provide consent.</small>
+            </div>
+          <% end %>
+
+          <div class="form-group">
+            <%= form.label :child_id, 'Child/Minor', class: 'form-label' %>
+            <%= form.select :child_id, 
+                options_from_collection_for_select(User.minors, :id, :full_name_with_age, @parental_consent.child_id),
+                { prompt: 'Select a child/minor' },
+                class: 'form-control' %>
+            <small class="form-text text-muted">Select the child or minor for whom you are requesting parental consent.</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :consent_date, class: 'form-label' %>
+            <%= form.date_field :consent_date, class: 'form-control', value: Date.current %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :expiry_date, class: 'form-label' %>
+            <%= form.date_field :expiry_date, class: 'form-control', value: 1.year.from_now.to_date %>
+            <small class="form-text text-muted">Consent will expire on this date. Default is 1 year from today.</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :notes, class: 'form-label' %>
+            <%= form.text_area :notes, class: 'form-control', rows: 3, placeholder: 'Additional notes or special requirements' %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :consent_details, 'Consent Details (JSON)', class: 'form-label' %>
+            <%= form.text_area :consent_details, class: 'form-control', rows: 4, 
+                placeholder: '{"activity_type": "online_learning", "supervision_level": "moderate", "contact_permissions": true}',
+                value: '{}' %>
+            <small class="form-text text-muted">Optional JSON object with additional consent details. Leave as {} for no additional details.</small>
+          </div>
+
+          <div class="form-actions">
+            <%= form.submit 'Create Consent Request', class: 'btn btn-primary' %>
+            <%= link_to 'Cancel', parental_consents_path, class: 'btn btn-secondary' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

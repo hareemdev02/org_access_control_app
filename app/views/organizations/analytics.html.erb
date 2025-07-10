@@ -1,0 +1,177 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2><%= @organization.name %> - Analytics</h2>
+  <%= link_to 'Back to Organization', organization_path(@organization), class: 'btn btn-outline-secondary' %>
+</div>
+
+<div class="row">
+  <!-- Key Metrics -->
+  <div class="col-md-3 mb-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h3 class="text-primary"><%= @daily_report.total_members %></h3>
+        <p class="card-text">Total Members</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3 mb-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h3 class="text-success"><%= @daily_report.participation_rate %>%</h3>
+        <p class="card-text">Participation Rate</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3 mb-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h3 class="text-info"><%= @daily_report.active_users_7_days %></h3>
+        <p class="card-text">Active (7 days)</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3 mb-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h3 class="text-warning"><%= @daily_report.new_members_this_month %></h3>
+        <p class="card-text">New This Month</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Age Group Breakdown -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Age Group Distribution</h5>
+      </div>
+      <div class="card-body">
+        <% @daily_report.age_group_breakdown.each do |age_group, count| %>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span><%= age_group.titleize %></span>
+            <div>
+              <span class="badge badge-primary"><%= count %></span>
+              <small class="text-muted">(<%= ((count.to_f / @daily_report.total_members) * 100).round(1) %>%)</small>
+            </div>
+          </div>
+          <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar" style="width: <%= ((count.to_f / @daily_report.total_members) * 100).round(1) %>%"></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Role Distribution -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Role Distribution</h5>
+      </div>
+      <div class="card-body">
+        <% @daily_report.members_by_role.each do |role, count| %>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span><%= role.titleize %></span>
+            <div>
+              <span class="badge badge-secondary"><%= count %></span>
+              <small class="text-muted">(<%= ((count.to_f / @daily_report.total_members) * 100).round(1) %>%)</small>
+            </div>
+          </div>
+          <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar bg-secondary" style="width: <%= ((count.to_f / @daily_report.total_members) * 100).round(1) %>%"></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Recent Analytics -->
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Recent Analytics</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Total Members</th>
+                <th>Participation Rate</th>
+                <th>Growth Rate</th>
+                <th>Active Users</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @analytics.each do |analytics| %>
+                <tr>
+                  <td><%= analytics.generated_at.strftime('%B %d, %Y') %></td>
+                  <td><%= analytics.total_members %></td>
+                  <td><%= analytics.participation_rate %>%</td>
+                  <td>
+                    <% if analytics.growth_rate > 0 %>
+                      <span class="text-success">+<%= analytics.growth_rate %>%</span>
+                    <% elsif analytics.growth_rate < 0 %>
+                      <span class="text-danger"><%= analytics.growth_rate %>%</span>
+                    <% else %>
+                      <span class="text-muted">0%</span>
+                    <% end %>
+                  </td>
+                  <td><%= analytics.active_users_7_days %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Report Comparison</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <h6>Daily Report</h6>
+            <ul class="list-unstyled">
+              <li>Members: <%= @daily_report.total_members %></li>
+              <li>Participation: <%= @daily_report.participation_rate %>%</li>
+              <li>Active (7d): <%= @daily_report.active_users_7_days %></li>
+              <li>Active (30d): <%= @daily_report.active_users_30_days %></li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h6>Weekly Report</h6>
+            <ul class="list-unstyled">
+              <li>Members: <%= @weekly_report.total_members %></li>
+              <li>Participation: <%= @weekly_report.participation_rate %>%</li>
+              <li>New Members: <%= @weekly_report.new_members_count %></li>
+              <li>Active Members: <%= @weekly_report.active_members_count %></li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h6>Monthly Report</h6>
+            <ul class="list-unstyled">
+              <li>Members: <%= @monthly_report.total_members %></li>
+              <li>Participation: <%= @monthly_report.participation_rate %>%</li>
+              <li>New Members: <%= @monthly_report.new_members_count %></li>
+              <li>Active Members: <%= @monthly_report.active_members_count %></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

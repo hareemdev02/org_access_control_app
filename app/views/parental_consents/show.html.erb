@@ -1,0 +1,223 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4>Parental Consent Details</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Child Information</h6>
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar-lg bg-light rounded-circle d-flex align-items-center justify-content-center mr-3">
+                <%= @parental_consent.child.first_name[0].upcase %>
+              </div>
+              <div>
+                <h5 class="mb-0"><%= @parental_consent.child.full_name %></h5>
+                <p class="text-muted mb-0">
+                  <%= @parental_consent.child.age_group.titleize %> • <%= @parental_consent.child.age %> years old
+                </p>
+              </div>
+            </div>
+            <p><strong>Email:</strong> <%= @parental_consent.child.email %></p>
+            <p><strong>Organization:</strong> <%= @parental_consent.child.organization&.name || 'None' %></p>
+          </div>
+          
+          <div class="col-md-6">
+            <h6>Parent/Guardian Information</h6>
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar-lg bg-light rounded-circle d-flex align-items-center justify-content-center mr-3">
+                <%= @parental_consent.parent.first_name[0].upcase %>
+              </div>
+              <div>
+                <h5 class="mb-0"><%= @parental_consent.parent.full_name %></h5>
+                <p class="text-muted mb-0">Parent/Guardian</p>
+              </div>
+            </div>
+            <p><strong>Email:</strong> <%= @parental_consent.parent.email %></p>
+            <p><strong>Organization:</strong> <%= @parental_consent.parent.organization&.name || 'None' %></p>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Consent Status</h6>
+            <p><strong>Status:</strong> 
+              <% if @parental_consent.approved? %>
+                <span class="badge badge-success">Approved</span>
+              <% elsif @parental_consent.revoked? %>
+                <span class="badge badge-danger">Revoked</span>
+              <% else %>
+                <span class="badge badge-warning">Pending</span>
+              <% end %>
+            </p>
+            <p><strong>Consent Date:</strong> <%= @parental_consent.consent_date.strftime("%B %d, %Y") %></p>
+            <p><strong>Expiry Date:</strong> 
+              <% if @parental_consent.expired? %>
+                <span class="text-danger"><%= @parental_consent.expiry_date.strftime("%B %d, %Y") %> (Expired)</span>
+              <% else %>
+                <%= @parental_consent.expiry_date.strftime("%B %d, %Y") %>
+              <% end %>
+            </p>
+          </div>
+          
+          <div class="col-md-6">
+            <h6>Approval Details</h6>
+            <% if @parental_consent.approved? %>
+              <p><strong>Approved By:</strong> <%= @parental_consent.approved_by&.full_name || 'N/A' %></p>
+              <p><strong>Approved At:</strong> <%= @parental_consent.approved_at&.strftime("%B %d, %Y at %I:%M %p") || 'N/A' %></p>
+            <% end %>
+            
+            <% if @parental_consent.revoked? %>
+              <p><strong>Revoked By:</strong> <%= @parental_consent.revoked_by&.full_name || 'N/A' %></p>
+              <p><strong>Revoked At:</strong> <%= @parental_consent.revoked_at&.strftime("%B %d, %Y at %I:%M %p") || 'N/A' %></p>
+            <% end %>
+          </div>
+        </div>
+        
+        <% if @parental_consent.notes.present? %>
+          <hr>
+          <div class="row">
+            <div class="col-12">
+              <h6>Notes</h6>
+              <p><%= @parental_consent.notes %></p>
+            </div>
+          </div>
+        <% end %>
+        
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <h6>Actions</h6>
+            <div class="btn-group" role="group">
+              <% if current_user == @parental_consent.parent && !@parental_consent.approved? %>
+                <%= link_to 'Approve Consent', approve_parental_consent_path(@parental_consent), 
+                    method: :patch, 
+                    class: 'btn btn-success',
+                    data: { confirm: 'Are you sure you want to approve this consent?' } %>
+              <% end %>
+              
+              <% if current_user == @parental_consent.parent && @parental_consent.approved? %>
+                <%= link_to 'Revoke Consent', revoke_parental_consent_path(@parental_consent), 
+                    method: :patch, 
+                    class: 'btn btn-danger',
+                    data: { confirm: 'Are you sure you want to revoke this consent?' } %>
+              <% end %>
+              
+              <% if current_user == @parental_consent.parent && @parental_consent.expired? %>
+                <%= link_to 'Renew Consent', renew_parental_consent_path(@parental_consent), 
+                    method: :patch, 
+                    class: 'btn btn-warning' %>
+              <% end %>
+              
+              <% if current_user.minor? %>
+                <%= link_to 'Back to Dashboard', dashboard_path, class: 'btn btn-secondary' %>
+              <% else %>
+                <%= link_to 'Back to Parental Consents', parental_consents_path, class: 'btn btn-secondary' %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h6>Consent Timeline</h6>
+      </div>
+      <div class="card-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-marker bg-primary"></div>
+            <div class="timeline-content">
+              <h6 class="mb-0">Consent Requested</h6>
+              <small class="text-muted"><%= @parental_consent.created_at.strftime("%B %d, %Y") %></small>
+            </div>
+          </div>
+          
+          <% if @parental_consent.approved? %>
+            <div class="timeline-item">
+              <div class="timeline-marker bg-success"></div>
+              <div class="timeline-content">
+                <h6 class="mb-0">Consent Approved</h6>
+                <small class="text-muted"><%= @parental_consent.approved_at.strftime("%B %d, %Y") %></small>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if @parental_consent.revoked? %>
+            <div class="timeline-item">
+              <div class="timeline-marker bg-danger"></div>
+              <div class="timeline-content">
+                <h6 class="mb-0">Consent Revoked</h6>
+                <small class="text-muted"><%= @parental_consent.revoked_at.strftime("%B %d, %Y") %></small>
+              </div>
+            </div>
+          <% end %>
+          
+          <div class="timeline-item">
+            <div class="timeline-marker <%= @parental_consent.expired? ? 'bg-danger' : 'bg-warning' %>"></div>
+            <div class="timeline-content">
+              <h6 class="mb-0">Consent Expires</h6>
+              <small class="text-muted"><%= @parental_consent.expiry_date.strftime("%B %d, %Y") %></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card mt-3">
+      <div class="card-header">
+        <h6>Consent Details</h6>
+      </div>
+      <div class="card-body">
+        <% if @parental_consent.consent_details.present? && @parental_consent.consent_details.is_a?(Hash) && @parental_consent.consent_details.any? %>
+          <% @parental_consent.consent_details.each do |key, value| %>
+            <p><strong><%= key.titleize %>:</strong> <%= value %></p>
+          <% end %>
+        <% else %>
+          <p class="text-muted">No additional details provided.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -35px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.timeline-content {
+  padding-left: 10px;
+}
+
+.timeline-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: -29px;
+  top: 17px;
+  width: 2px;
+  height: calc(100% + 3px);
+  background-color: #dee2e6;
+}
+</style> 

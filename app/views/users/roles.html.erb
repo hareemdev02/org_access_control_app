@@ -1,0 +1,137 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4>Manage Roles for <%= @user.full_name %></h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Current Roles</h6>
+            <% if @user.roles.any? %>
+              <% @user.roles.each do |role| %>
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                  <div>
+                    <span class="badge badge-info"><%= role.name %></span>
+                    <% if role.resource %>
+                      <small class="text-muted">(<%= role.resource.name %>)</small>
+                    <% end %>
+                  </div>
+                  <%= link_to 'Remove', remove_role_user_path(@user, role_name: role.name, resource_id: role.resource_id), 
+                      method: :delete, 
+                      class: 'btn btn-sm btn-outline-danger',
+                      data: { confirm: 'Are you sure?' } %>
+                </div>
+              <% end %>
+            <% else %>
+              <p class="text-muted">No roles assigned.</p>
+            <% end %>
+          </div>
+          
+          <div class="col-md-6">
+            <h6>Add New Role</h6>
+            <%= form_with(url: assign_role_user_path(@user), method: :post, local: true) do |form| %>
+              <div class="form-group">
+                <%= form.label :role_name, 'Role', class: 'form-label' %>
+                <%= form.select :role_name, 
+                    options_for_select(Role::ROLES.map { |role| [role.titleize, role] }), 
+                    { prompt: 'Select a role' },
+                    class: 'form-control' %>
+              </div>
+              
+              <div class="form-group">
+                <%= form.label :resource_id, 'Organization (Optional)', class: 'form-label' %>
+                <%= form.select :resource_id, 
+                    options_from_collection_for_select(Organization.all, :id, :name),
+                    { prompt: 'Select an organization (optional)' },
+                    class: 'form-control' %>
+              </div>
+              
+              <%= form.submit 'Assign Role', class: 'btn btn-primary' %>
+            <% end %>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+          <div class="col-12">
+            <h6>Available Roles</h6>
+            <div class="row">
+              <% Role::ROLES.each do |role_name| %>
+                <div class="col-md-3 mb-2">
+                  <div class="card">
+                    <div class="card-body text-center">
+                      <h6><%= role_name.titleize %></h6>
+                      <small class="text-muted">
+                        <% role = Role.new(name: role_name) %>
+                        <%= role.permissions.join(', ') %>
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <div class="btn-group" role="group">
+              <%= link_to 'Back to User', user_path(@user), class: 'btn btn-secondary' %>
+              <%= link_to 'View All Users', users_path, class: 'btn btn-outline-primary' %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h6>User Information</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-3">
+          <div class="avatar-lg bg-light rounded-circle d-flex align-items-center justify-content-center mr-3">
+            <%= @user.first_name[0].upcase %>
+          </div>
+          <div>
+            <h5 class="mb-0"><%= @user.full_name %></h5>
+            <p class="text-muted mb-0"><%= @user.email %></p>
+          </div>
+        </div>
+        
+        <p><strong>Age Group:</strong> 
+          <span class="badge badge-<%= @user.age_group == 'child' ? 'success' : (@user.age_group == 'teen' ? 'warning' : 'secondary') %>">
+            <%= @user.age_group.titleize %>
+          </span>
+        </p>
+        
+        <p><strong>Organization:</strong> <%= @user.organization&.name || 'None' %></p>
+        
+        <p><strong>Total Roles:</strong> <%= @user.roles.count %></p>
+      </div>
+    </div>
+    
+    <div class="card mt-3">
+      <div class="card-header">
+        <h6>Role Permissions</h6>
+      </div>
+      <div class="card-body">
+        <% @user.roles.each do |role| %>
+          <div class="mb-2">
+            <strong><%= role.name.titleize %></strong>
+            <ul class="list-unstyled ml-3">
+              <% role.permissions.each do |permission| %>
+                <li><small class="text-muted">• <%= permission.titleize %></small></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

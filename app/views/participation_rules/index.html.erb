@@ -1,0 +1,77 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Participation Rules</h4>
+        <% if current_user.organization_admin? %>
+          <div class="btn-group" role="group">
+            <%= link_to 'New Rule', new_organization_participation_rule_path(@organization), class: 'btn btn-primary' %>
+            <%= link_to 'Reset to Defaults', reset_to_defaults_organization_participation_rules_path(@organization), 
+                method: :post, 
+                class: 'btn btn-outline-secondary',
+                data: { confirm: 'Are you sure? This will reset all rules to default values.' } %>
+          </div>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Age Group</th>
+                <th>Participation Status</th>
+                <th>Parental Consent Required</th>
+                <th>Restrictions</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @participation_rules.each do |rule| %>
+                <tr>
+                  <td>
+                    <strong><%= rule.age_group.titleize %></strong>
+                    <br>
+                    <small class="text-muted">Ages <%= rule.min_age %>-<%= rule.max_age %></small>
+                  </td>
+                  <td>
+                    <% if rule.participation_allowed? %>
+                      <span class="badge badge-success">Allowed</span>
+                    <% else %>
+                      <span class="badge badge-danger">Restricted</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if rule.parental_consent_required? %>
+                      <span class="badge badge-warning">Required</span>
+                    <% else %>
+                      <span class="badge badge-secondary">Not Required</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if rule.restrictions.present? %>
+                      <small><%= rule.restrictions %></small>
+                    <% else %>
+                      <small class="text-muted">None</small>
+                    <% end %>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <%= link_to 'View', organization_participation_rule_path(@organization, rule), class: 'btn btn-outline-primary' %>
+                      <% if current_user.organization_admin? %>
+                        <%= link_to 'Edit', edit_organization_participation_rule_path(@organization, rule), class: 'btn btn-outline-secondary' %>
+                        <%= link_to 'Delete', organization_participation_rule_path(@organization, rule), 
+                            method: :delete, 
+                            class: 'btn btn-outline-danger',
+                            data: { confirm: 'Are you sure?' } %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

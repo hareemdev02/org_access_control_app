@@ -1,0 +1,147 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4><%= @user.full_name %></h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Personal Information</h6>
+            <p><strong>Email:</strong> <%= @user.email %></p>
+            <p><strong>Age:</strong> <%= @user.age %> years old</p>
+            <p><strong>Age Group:</strong> 
+              <span class="badge badge-<%= @user.age_group == 'child' ? 'success' : (@user.age_group == 'teen' ? 'warning' : 'secondary') %>">
+                <%= @user.age_group.titleize %>
+              </span>
+            </p>
+            <p><strong>Date of Birth:</strong> <%= @user.date_of_birth.strftime("%B %d, %Y") %></p>
+            <% if @user.phone_number.present? %>
+              <p><strong>Phone:</strong> <%= @user.phone_number %></p>
+            <% end %>
+          </div>
+          
+          <div class="col-md-6">
+            <h6>Organization Information</h6>
+            <% if @user.organization %>
+              <p><strong>Organization:</strong> <%= @user.organization.name %></p>
+              <p><strong>Domain:</strong> <%= @user.organization.domain %></p>
+              <p><strong>Type:</strong> 
+                <span class="badge badge-<%= @user.organization.participation_type == 'public' ? 'success' : (@user.organization.participation_type == 'restricted' ? 'warning' : 'secondary') %>">
+                  <%= @user.organization.participation_type.titleize %>
+                </span>
+              </p>
+            <% else %>
+              <p><strong>Organization:</strong> <span class="text-muted">None</span></p>
+            <% end %>
+            
+            <p><strong>Member Since:</strong> <%= @user.created_at.strftime("%B %d, %Y") %></p>
+            <p><strong>Status:</strong> 
+              <% if @user.minor? %>
+                <% if @user.parental_consent&.approved? %>
+                  <span class="badge badge-success">Consent Approved</span>
+                <% else %>
+                  <span class="badge badge-warning">Consent Pending</span>
+                <% end %>
+              <% else %>
+                <span class="badge badge-success">Active</span>
+              <% end %>
+            </p>
+          </div>
+        </div>
+        
+        <% if @user.bio.present? %>
+          <hr>
+          <div class="row">
+            <div class="col-12">
+              <h6>Bio</h6>
+              <p><%= @user.bio %></p>
+            </div>
+          </div>
+        <% end %>
+        
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <h6>Actions</h6>
+            <div class="btn-group" role="group">
+              <% if current_user.organization_admin? || current_user == @user %>
+                <%= link_to 'Edit Profile', edit_user_path(@user), class: 'btn btn-primary' %>
+                <%= link_to 'Manage Roles', roles_user_path(@user), class: 'btn btn-info' %>
+              <% end %>
+              <%= link_to 'Back to Users', users_path, class: 'btn btn-secondary' %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h6>Roles & Permissions</h6>
+      </div>
+      <div class="card-body">
+        <% if @user.roles.any? %>
+          <% @user.roles.each do |role| %>
+            <div class="mb-2">
+              <span class="badge badge-info"><%= role.name %></span>
+              <% if role.resource %>
+                <small class="text-muted">(<%= role.resource.name %>)</small>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted">No roles assigned.</p>
+        <% end %>
+      </div>
+    </div>
+    
+    <% if @user.minor? %>
+      <div class="card mt-3">
+        <div class="card-header">
+          <h6>Parental Consent</h6>
+        </div>
+        <div class="card-body">
+          <% if @user.parental_consent %>
+            <p><strong>Status:</strong> 
+              <% if @user.parental_consent.approved? %>
+                <span class="badge badge-success">Approved</span>
+              <% else %>
+                <span class="badge badge-warning">Pending</span>
+              <% end %>
+            </p>
+            <p><strong>Parent:</strong> <%= @user.parental_consent.parent.full_name %></p>
+            <p><strong>Expires:</strong> <%= @user.parental_consent.expiry_date.strftime("%b %d, %Y") %></p>
+          <% else %>
+            <p class="text-muted">No parental consent on file.</p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+    
+    <div class="card mt-3">
+      <div class="card-header">
+        <h6>Account Information</h6>
+      </div>
+      <div class="card-body">
+        <p><strong>Email Verified:</strong> 
+          <% if @user.email_verified? %>
+            <span class="badge badge-success">Yes</span>
+          <% else %>
+            <span class="badge badge-warning">No</span>
+          <% end %>
+        </p>
+        <p><strong>Active:</strong> 
+          <% if @user.active? %>
+            <span class="badge badge-success">Yes</span>
+          <% else %>
+            <span class="badge badge-danger">No</span>
+          <% end %>
+        </p>
+        <p><strong>Last Sign In:</strong> <%= @user.last_sign_in_at&.strftime("%b %d, %Y at %I:%M %p") || 'Never' %></p>
+      </div>
+    </div>
+  </div>
+</div> 

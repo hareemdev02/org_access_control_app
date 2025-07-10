@@ -1,0 +1,75 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Organization Members</h4>
+        <% if current_user.organization_admin? %>
+          <%= link_to 'Add Member', new_user_path, class: 'btn btn-primary' %>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Age Group</th>
+                <th>Roles</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @users.each do |user| %>
+                <tr class="age-group-<%= user.age_group %>">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center mr-2">
+                        <%= user.first_name[0].upcase %>
+                      </div>
+                      <%= user.full_name %>
+                    </div>
+                  </td>
+                  <td><%= user.email %></td>
+                  <td>
+                    <span class="badge badge-<%= user.age_group == 'child' ? 'success' : (user.age_group == 'teen' ? 'warning' : 'secondary') %>">
+                      <%= user.age_group.titleize %>
+                    </span>
+                  </td>
+                  <td>
+                    <% user.roles.where(resource: @organization).each do |role| %>
+                      <span class="badge badge-info mr-1"><%= role.name %></span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if user.minor? %>
+                      <% if user.parental_consent&.approved? %>
+                        <span class="badge badge-success">Consent Approved</span>
+                      <% else %>
+                        <span class="badge badge-warning">Consent Pending</span>
+                      <% end %>
+                    <% else %>
+                      <span class="badge badge-success">Active</span>
+                    <% end %>
+                  </td>
+                  <td><%= user.created_at.strftime("%b %d, %Y") %></td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <%= link_to 'View', user_path(user), class: 'btn btn-outline-primary' %>
+                      <% if current_user.organization_admin? %>
+                        <%= link_to 'Edit', edit_user_path(user), class: 'btn btn-outline-secondary' %>
+                        <%= link_to 'Roles', roles_user_path(user), class: 'btn btn-outline-info' %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

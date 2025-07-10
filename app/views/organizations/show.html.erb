@@ -1,0 +1,120 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4><%= @organization.name %></h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Organization Details</h6>
+            <p><strong>Domain:</strong> <%= @organization.domain %></p>
+            <p><strong>Type:</strong> 
+              <span class="badge badge-<%= @organization.participation_type == 'public' ? 'success' : (@organization.participation_type == 'restricted' ? 'warning' : 'secondary') %>">
+                <%= @organization.participation_type.titleize %>
+              </span>
+            </p>
+            <p><strong>Description:</strong> <%= @organization.description %></p>
+            <p><strong>Created:</strong> <%= @organization.created_at.strftime("%B %d, %Y") %></p>
+          </div>
+          
+          <div class="col-md-6">
+            <h6>Quick Stats</h6>
+            <div class="row">
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="metric-value text-primary"><%= @organization.users.count %></div>
+                  <div class="metric-label">Total Members</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="metric-value text-success"><%= @organization.users.adults.count %></div>
+                  <div class="metric-label">Adults</div>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="metric-value text-warning"><%= @organization.users.minors.count %></div>
+                  <div class="metric-label">Minors</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="metric-value text-info"><%= @organization.participation_rules.count %></div>
+                  <div class="metric-label">Rules</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <% if current_user.organization_admin? %>
+          <hr>
+          <div class="row">
+            <div class="col-12">
+              <h6>Admin Actions</h6>
+              <div class="btn-group" role="group">
+                <%= link_to 'Edit Organization', edit_organization_path(@organization), class: 'btn btn-outline-primary' %>
+                <%= link_to 'Manage Members', members_organization_path(@organization), class: 'btn btn-outline-success' %>
+                <%= link_to 'Participation Rules', participation_rules_organization_path(@organization), class: 'btn btn-outline-warning' %>
+                <%= link_to 'View Analytics', analytics_organization_path(@organization), class: 'btn btn-outline-info' %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h6>Recent Members</h6>
+      </div>
+      <div class="card-body">
+        <% @organization.users.order(created_at: :desc).limit(5).each do |user| %>
+          <div class="d-flex align-items-center mb-2">
+            <div class="flex-shrink-0">
+              <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center">
+                <%= user.first_name[0].upcase %>
+              </div>
+            </div>
+            <div class="flex-grow-1 ml-2">
+              <div class="font-weight-bold"><%= user.full_name %></div>
+              <small class="text-muted">
+                <%= user.age_group.titleize %> • Joined <%= user.created_at.strftime("%b %d") %>
+              </small>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if @organization.users.count > 5 %>
+          <div class="text-center mt-2">
+            <%= link_to 'View All Members', members_organization_path(@organization), class: 'btn btn-sm btn-outline-primary' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="card mt-3">
+      <div class="card-header">
+        <h6>Participation Rules</h6>
+      </div>
+      <div class="card-body">
+        <% @organization.participation_rules.limit(3).each do |rule| %>
+          <div class="mb-2">
+            <small class="text-muted"><%= rule.age_group.titleize %></small>
+            <div class="font-weight-bold">
+              <%= rule.participation_allowed? ? 'Allowed' : 'Restricted' %>
+            </div>
+          </div>
+        <% end %>
+        
+        <%= link_to 'View All Rules', participation_rules_organization_path(@organization), class: 'btn btn-sm btn-outline-secondary' %>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,55 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4>Edit Organization</h4>
+      </div>
+      <div class="card-body">
+        <%= form_with(model: @organization, local: true) do |form| %>
+          <% if @organization.errors.any? %>
+            <div class="alert alert-danger">
+              <h6><%= pluralize(@organization.errors.count, "error") %> prohibited this organization from being saved:</h6>
+              <ul>
+                <% @organization.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="form-group">
+            <%= form.label :name, class: 'form-label' %>
+            <%= form.text_field :name, class: 'form-control' %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :domain, class: 'form-label' %>
+            <%= form.text_field :domain, class: 'form-control' %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :description, class: 'form-label' %>
+            <%= form.text_area :description, class: 'form-control', rows: 3 %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :participation_type, class: 'form-label' %>
+            <%= form.select :participation_type, 
+                options_for_select([
+                  ['Public - Open to everyone', 'public'],
+                  ['Restricted - Age-based restrictions', 'restricted'],
+                  ['Private - Organization members only', 'private']
+                ], @organization.participation_type), 
+                {}, 
+                class: 'form-control' %>
+          </div>
+
+          <div class="form-actions">
+            <%= form.submit 'Update Organization', class: 'btn btn-primary' %>
+            <%= link_to 'Cancel', organization_path(@organization), class: 'btn btn-secondary' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

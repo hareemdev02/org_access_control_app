@@ -1,0 +1,108 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4>Edit Participation Rule</h4>
+      </div>
+      <div class="card-body">
+        <%= form_with(model: [@organization, @participation_rule], local: true) do |form| %>
+          <% if @participation_rule.errors.any? %>
+            <div class="alert alert-danger">
+              <h6><%= pluralize(@participation_rule.errors.count, "error") %> prohibited this rule from being saved:</h6>
+              <ul>
+                <% @participation_rule.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="form-group">
+            <%= form.label :age_group, class: 'form-label' %>
+            <%= form.select :age_group, 
+                options_for_select([
+                  ['Child (0-12 years)', 'child'],
+                  ['Teen (13-17 years)', 'teen'],
+                  ['Young Adult (18-25 years)', 'young_adult'],
+                  ['Adult (26-64 years)', 'adult'],
+                  ['Senior (65+ years)', 'senior']
+                ], @participation_rule.age_group), 
+                {}, 
+                class: 'form-control' %>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <%= form.label :min_age, class: 'form-label' %>
+                <%= form.number_field :min_age, class: 'form-control', min: 0, max: 120 %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <%= form.label :max_age, class: 'form-label' %>
+                <%= form.number_field :max_age, class: 'form-control', min: 0, max: 120 %>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :participation_allowed, class: 'form-label' %>
+            <div class="form-check">
+              <%= form.check_box :participation_allowed, class: 'form-check-input' %>
+              <%= form.label :participation_allowed, 'Allow participation for this age group', class: 'form-check-label' %>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :parental_consent_required, class: 'form-label' %>
+            <div class="form-check">
+              <%= form.check_box :parental_consent_required, class: 'form-check-input' %>
+              <%= form.label :parental_consent_required, 'Require parental consent for this age group', class: 'form-check-label' %>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :content_filtering_level, class: 'form-label' %>
+            <%= form.select :content_filtering_level, 
+                options_for_select([
+                  ['Minimal', 'minimal'],
+                  ['Moderate', 'moderate'],
+                  ['Strict', 'strict']
+                ], @participation_rule.content_filtering_level), 
+                {}, 
+                class: 'form-control' %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :supervision_required, class: 'form-label' %>
+            <div class="form-check">
+              <%= form.check_box :supervision_required, class: 'form-check-input' %>
+              <%= form.label :supervision_required, 'Require adult supervision for this age group', class: 'form-check-label' %>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :time_restrictions, class: 'form-label' %>
+            <%= form.text_field :time_restrictions, class: 'form-control', placeholder: 'e.g., Weekdays 3-8 PM only' %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :restrictions, class: 'form-label' %>
+            <%= form.text_area :restrictions, class: 'form-control', rows: 3, placeholder: 'Additional restrictions or notes' %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :description, class: 'form-label' %>
+            <%= form.text_area :description, class: 'form-control', rows: 2, placeholder: 'Brief description of this rule' %>
+          </div>
+
+          <div class="form-actions">
+            <%= form.submit 'Update Rule', class: 'btn btn-primary' %>
+            <%= link_to 'Cancel', organization_participation_rule_path(@organization, @participation_rule), class: 'btn btn-secondary' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

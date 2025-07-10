@@ -1,0 +1,95 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Parental Consents</h4>
+        <% if current_user.adult? %>
+          <%= link_to 'New Consent Request', new_parental_consent_path, class: 'btn btn-primary' %>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Child</th>
+                <th>Parent/Guardian</th>
+                <th>Status</th>
+                <th>Consent Date</th>
+                <th>Expiry Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @parental_consents.each do |consent| %>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center mr-2">
+                        <%= consent.child.first_name[0].upcase %>
+                      </div>
+                      <div>
+                        <div class="font-weight-bold"><%= consent.child.full_name %></div>
+                        <small class="text-muted"><%= consent.child.age_group.titleize %> • <%= consent.child.age %> years old</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center mr-2">
+                        <%= consent.parent.first_name[0].upcase %>
+                      </div>
+                      <div>
+                        <div class="font-weight-bold"><%= consent.parent.full_name %></div>
+                        <small class="text-muted"><%= consent.parent.email %></small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <% if consent.approved? %>
+                      <span class="badge badge-success">Approved</span>
+                    <% elsif consent.revoked? %>
+                      <span class="badge badge-danger">Revoked</span>
+                    <% else %>
+                      <span class="badge badge-warning">Pending</span>
+                    <% end %>
+                  </td>
+                  <td><%= consent.consent_date.strftime("%b %d, %Y") %></td>
+                  <td>
+                    <% if consent.expired? %>
+                      <span class="text-danger"><%= consent.expiry_date.strftime("%b %d, %Y") %></span>
+                    <% else %>
+                      <%= consent.expiry_date.strftime("%b %d, %Y") %>
+                    <% end %>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <%= link_to 'View', parental_consent_path(consent), class: 'btn btn-outline-primary' %>
+                      <% if current_user == consent.parent && !consent.approved? %>
+                        <%= link_to 'Approve', approve_parental_consent_path(consent), 
+                            method: :patch, 
+                            class: 'btn btn-outline-success',
+                            data: { confirm: 'Are you sure you want to approve this consent?' } %>
+                      <% end %>
+                      <% if current_user == consent.parent && consent.approved? %>
+                        <%= link_to 'Revoke', revoke_parental_consent_path(consent), 
+                            method: :patch, 
+                            class: 'btn btn-outline-danger',
+                            data: { confirm: 'Are you sure you want to revoke this consent?' } %>
+                      <% end %>
+                      <% if current_user == consent.parent && consent.expired? %>
+                        <%= link_to 'Renew', renew_parental_consent_path(consent), 
+                            method: :patch, 
+                            class: 'btn btn-outline-warning' %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Organizations</h2>
+  <%= link_to 'Create New Organization', new_organization_path, class: 'btn btn-primary' %>
+</div>
+
+<div class="row">
+  <% @organizations.each do |organization| %>
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><%= organization.name %></h5>
+          <p class="card-text text-muted"><%= organization.domain %></p>
+          <p class="card-text"><%= truncate(organization.description, length: 100) %></p>
+          
+          <div class="mb-3">
+            <span class="badge badge-<%= organization.participation_type == 'public' ? 'success' : 'warning' %>">
+              <%= organization.participation_type.titleize %> Participation
+            </span>
+            <span class="badge badge-<%= organization.active? ? 'success' : 'secondary' %>">
+              <%= organization.active? ? 'Active' : 'Inactive' %>
+            </span>
+          </div>
+          
+          <div class="row text-center mb-3">
+            <div class="col-6">
+              <strong><%= organization.member_count %></strong>
+              <div class="text-muted small">Members</div>
+            </div>
+            <div class="col-6">
+              <strong><%= organization.admin_count %></strong>
+              <div class="text-muted small">Admins</div>
+            </div>
+          </div>
+          
+          <div class="btn-group w-100">
+            <%= link_to 'View', organization_path(organization), class: 'btn btn-outline-primary btn-sm' %>
+            <% if current_user.organization_admin? && current_user.organization == organization %>
+              <%= link_to 'Edit', edit_organization_path(organization), class: 'btn btn-outline-secondary btn-sm' %>
+              <%= link_to 'Analytics', analytics_organization_path(organization), class: 'btn btn-outline-info btn-sm' %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @organizations.empty? %>
+  <div class="text-center py-5">
+    <h4 class="text-muted">No organizations found</h4>
+    <p class="text-muted">Create your first organization to get started.</p>
+    <%= link_to 'Create Organization', new_organization_path, class: 'btn btn-primary' %>
+  </div>
+<% end %> 
