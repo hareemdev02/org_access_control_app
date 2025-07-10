@@ -21,6 +21,41 @@
     <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
   </div>
 
+  <div class="field">
+    <%= f.label :first_name %><br />
+    <%= f.text_field :first_name, required: true, autocomplete: "given-name" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :last_name %><br />
+    <%= f.text_field :last_name, required: true, autocomplete: "family-name" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :date_of_birth %><br />
+    <%= f.date_field :date_of_birth, required: true, autocomplete: "bday" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :phone_number %><br />
+    <%= f.telephone_field :phone_number, autocomplete: "tel" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :organization_id, "Organization" %><br />
+    <%= f.number_field :organization_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :bio %><br />
+    <%= f.text_area :bio, rows: 3 %>
+  </div>
+
+  <div class="field">
+    <%= f.label :avatar_url %><br />
+    <%= f.url_field :avatar_url %>
+  </div>
+
   <div class="actions">
     <%= f.submit "Sign up" %>
   </div>
