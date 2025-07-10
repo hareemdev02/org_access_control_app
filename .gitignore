@@ -1,0 +1,116 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/yarn-error.log
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Ignore uploaded files in development.
+/storage/*
+!/storage/.keep
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+
+# Ignore application configuration
+/config/application.yml
+/config/database.yml
+
+# Ignore environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore Ruby version manager files
+.ruby-version
+.rvmrc
+
+# Ignore Node version manager files
+.nvmrc
+.node-version
+
+# Ignore asdf version manager files
+.tool-versions
+
+# Ignore bundler config
+/.bundle
+/vendor/bundle
+
+# Ignore all cache files
+/tmp/cache/*
+!/tmp/cache/.keep
+
+# Ignore public assets
+/public/assets
+/public/packs
+/public/packs-test
+
+# Ignore npm/yarn lock files (if you want to ignore them)
+# package-lock.json
+# yarn.lock
+
+# Ignore coverage reports
+/coverage/
+
+# Ignore test artifacts
+/test/tmp/
+/test/version_tmp/
+
+# Ignore database files
+*.sqlite3
+*.sqlite3-*
+
+# Ignore backup files
+*.bak
+*.backup
+
+# Ignore compiled assets
+/public/assets/
+/public/packs/
+/public/packs-test/
+
+# Ignore webpacker compilation cache
+/tmp/cache/webpacker/
+
+# Ignore bootsnap cache
+/tmp/cache/bootsnap/
+
+# Ignore sprockets cache
+/tmp/cache/assets/
+
+# Ignore development secret
+/tmp/development_secret.txt
+
+# Ignore production secret
+/tmp/production_secret.txt
+
+# Ignore test secret
+/tmp/test_secret.txt 
