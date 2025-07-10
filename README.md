@@ -29,6 +29,7 @@ A comprehensive Rails application that implements organization-based access cont
 ## Technology Stack
 
 - **Ruby on Rails 6.0.4**
+- **Ruby 2.5.9**
 - **PostgreSQL** - Database
 - **Devise** - Authentication
 - **Pundit** - Authorization
